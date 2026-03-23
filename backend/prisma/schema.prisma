@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum RoomType {
+  STANDARD
+  DELUXE
+  SUITE
+}
+
+model Room {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  type          RoomType
+  capacity      Int
+  pricePerNight Decimal   @db.Decimal(10, 2)
+  amenities     String[]
+  imageUrl      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  roomId     String
+  customerId String
+  checkIn    DateTime
+  checkOut   DateTime
+  status     BookingStatus @default(PENDING)
+  totalPrice Decimal       @db.Decimal(10, 2)
+  guests     Int
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, checkIn, checkOut])
+  @@index([customerId])
+}
