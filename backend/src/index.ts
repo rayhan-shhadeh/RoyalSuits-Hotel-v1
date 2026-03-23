@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -7,6 +8,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { generalLimiter } from './middleware/rateLimiter';
 import { logger } from './lib/logger';
 
+console.log("ENV TEST:", process.env.DATABASE_URL);
 const app = express();
 
 app.use(helmet());
